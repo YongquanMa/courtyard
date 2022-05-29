@@ -8,26 +8,28 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
+@RequestMapping(value = "/Dashboard")
 public class AnnouncementController {
+    @Autowired
     private AnnouncementService announcementService;
 
-    @Autowired
-    public AnnouncementController(AnnouncementService announcementService){
-        this.announcementService = announcementService;
-    }
-
-    @GetMapping(value = "/announcements")
+    @GetMapping(value = "/listAll")
     public List<Announcement> listAll(){
         return announcementService.listAll();
     }
 
-    @PostMapping( "/announcements")
+    @PostMapping( "/add")
     public void add(@RequestBody Announcement announcement){
         announcementService.add(announcement);
     }
-    @DeleteMapping("/announcements")
+    @DeleteMapping("/deleteAll")
     public void deleteAll(){
         announcementService.deleteAll();
+    }
+
+    @DeleteMapping("/delete")
+    public void delete(Long id){
+        announcementService.delete(id);
     }
 }
 

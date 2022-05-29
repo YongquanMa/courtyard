@@ -1,0 +1,354 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.example.courtyard.repository.AnnouncementRepository">
+
+    <resultMap type="com.example.courtyard.entity.Announcement" id="announcementMap">
+        <result property="id" column="id"/>
+        <result property="date" column="date"/>
+        <result property="description" column="description"/>
+        <result property="note" column="note"/>
+    </resultMap>
+
+    <!-- 新增非编工资信息 -->
+    <insert id="listAll">
+        INSERT INTO emolu_fb_wage(user_id,basics_wage,age_wage,education_wage,occupation_wage,administration_subsidy,technology_subsidy,post_subsidy,traffic_subsidy,basics_perf,exist_reside_subsidy,driver_kilometre_subsidy,increase_one,increase_two,total_payable,social_security,accumulation_fund,trade_union_dues,meal_tonic,other_one,other_two,withholding_total,actual_salary,grsds,remark,creator,create_date)
+        VALUES (#{userId},#{basicsWage},#{ageWage},#{educationWage},#{occupationWage},#{administrationSubsidy},#{technologySubsidy},#{postSubsidy},#{trafficSubsidy},#{basicsPerf},#{existResideSubsidy},#{driverKilometreSubsidy},#{increaseOne},#{increaseTwo},#{totalPayable},#{socialSecurity},#{accumulationFund},#{tradeUnionDues},#{mealTonic},#{otherOne},#{otherTwo},#{withholdingTotal},#{actualSalary},#{grsds},#{remark},#{creator},#{createDate})
+    </insert>
+
+    <!-- 根据姓名进行模糊分页查询 -->
+    <select id="getFbWages" resultMap="emoluFbWageMap">
+        SELECT
+        wage.id,wage.user_id,basics_wage,age_wage,education_wage,occupation_wage,administration_subsidy,technology_subsidy,post_subsidy,traffic_subsidy,basics_perf,exist_reside_subsidy,driver_kilometre_subsidy,increase_one,increase_two,total_payable,social_security,accumulation_fund,trade_union_dues,meal_tonic,other_one,other_two,withholding_total,actual_salary,grsds,wage.remark,wage.creator,wage.create_date,wage.updater,wage.update_date,login_no,real_name,dept_id,usr.id_code,dept.`name`
+        AS dept_name
+        FROM emolu_fb_wage AS wage
+        INNER JOIN sys_user AS usr ON wage.user_id = usr.id
+        INNER JOIN sys_dept AS dept ON usr.dept_id = dept.id
+        WHERE usr.super_admin = 0
+        <if test="realNames != null"><!--根据姓名批量-->
+            AND usr.real_name IN
+            <foreach collection="realNames" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="rName != null">
+            AND usr.real_name LIKE #{rName}
+        </if>
+        <if test="loginNos != null"><!--根据erp账号批量查询-->
+            AND usr.login_no IN
+            <foreach collection="loginNos" item="item" separator="," open="(" close=")">
+                #{item}
+            </foreach>
+        </if>
+        <if test="deptId!=null and deptId != ''"><!--根据部门查询-->
+            AND usr.depr_id = #{deptId}
+        </if>
+        <if test="domains != null"><!--根据部门查询-->
+            <foreach collection="domains" item="item" index="index">
+                <if test="item.money!=null and item.money == 'basicsWage'"><!--根据基础工资查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.basics_wage ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.basics_wage ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'ageWage'"><!--根据院龄工资查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.age_wage ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.age_wage ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'educationWage'"><!--根据学历工资查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.education_wage ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.education_wage ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'occupationWage'"><!--根据职业资格工资查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.occupation_wage ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.occupation_wage ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'administrationSubsidy'"><!--根据行政(岗位)津贴查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.administration_subsidy ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.administration_subsidy ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'technologySubsidy'"><!--根据技术职务津贴查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.technology_subsidy ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.technology_subsidy ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'postSubsidy'"><!--根据职岗(工种津贴)查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.post_subsidy ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.post_subsidy ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'trafficSubsidy'"><!--根据交通补助查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.traffic_subsidy ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.traffic_subsidy ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'basicsPerf'"><!--根据基础绩效查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.basics_perf ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.basics_perf ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'existResideSubsidy'"><!--根据在职住房补贴查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.exist_reside_subsidy ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.exist_reside_subsidy ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'driverKilometreSubsidy'"><!--根据驾驶员公里数补贴查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.driver_kilometre_subsidy ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.driver_kilometre_subsidy ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'increaseOne'"><!--根据增加项1查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.increase_one ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.increase_one ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'increaseTwo'"><!--根据增加项2查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.increase_two ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.increase_two ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'totalPayable'"><!--根据应发合计查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.total_payable ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.total_payable ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'socialSecurity'"><!--根据社保查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.social_security ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.social_security ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'accumulationFund'"><!--根据公积金查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.accumulation_fund ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.accumulation_fund ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'tradeUnionDues'"><!--根据工会费查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.trade_union_dues ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.trade_union_dues ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'mealTonic'"><!--根据餐补查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.meal_tonic ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.meal_tonic ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'otherOne'"><!--根据其他1查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.other_one ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.other_one ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'otherTwo'"><!--根据其他2查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.other_two ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.other_two ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'withholdingTotal'"><!--根据代扣合计查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.withholding_total ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.withholding_total ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'actualSalary'"><!--根据当月实发查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.actual_salary ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.actual_salary ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+
+                <if test="item.money!=null and item.money == 'grsds'"><!--根据个人所得税查询-->
+                    <if test="item.scopeOne!=null and item.symbolOne!=''">
+                        AND wage.grsds ${item.symbolOne} #{item.scopeOne}
+                    </if>
+                    <if test="item.scopeTwo!=null and item.symbolTwo!=''">
+                        AND wage.grsds ${item.symbolTwo} #{item.scopeTwo}
+                    </if>
+                </if>
+            </foreach>
+        </if>
+        /*ORDER BY dept.sort*/
+    </select>
+
+    <!-- 获取数据导出到excel -->
+    <select id="fbWageExcel" resultType="io.emolument.modules.business.excel.EmoluFbWageExcel">
+        SELECT wage.id,wage.user_id,basics_wage,age_wage,education_wage,occupation_wage,administration_subsidy,technology_subsidy,post_subsidy,traffic_subsidy,basics_perf,exist_reside_subsidy,driver_kilometre_subsidy,increase_one,increase_two,total_payable,social_security,accumulation_fund,trade_union_dues,meal_tonic,other_one,other_two,withholding_total,actual_salary,grsds,wage.remark,wage.creator,wage.create_date,wage.updater,wage.update_date,login_no,real_name,dept_id,ID_CODE,dept.`name` AS dept_name
+        FROM emolu_fb_wage AS wage
+                 INNER JOIN sys_user AS usr ON wage.user_id = usr.id
+                 INNER JOIN sys_dept AS dept ON usr.dept_id = dept.id
+        ORDER by dept.sort,usr.user_sort IS NULL,usr.user_sort
+    </select>
+
+    <select id="fbWageExcelByIds" resultType="io.emolument.modules.business.excel.EmoluFbWageExcel">
+        SELECT
+        wage.id,wage.user_id,basics_wage,age_wage,education_wage,occupation_wage,administration_subsidy,technology_subsidy,post_subsidy,traffic_subsidy,basics_perf,exist_reside_subsidy,driver_kilometre_subsidy,increase_one,increase_two,total_payable,social_security,accumulation_fund,trade_union_dues,meal_tonic,other_one,other_two,withholding_total,actual_salary,grsds,wage.remark,wage.creator,wage.create_date,wage.updater,wage.update_date,login_no,real_name,dept_id,ID_CODE,dept.`name`
+        AS dept_name FROM emolu_fb_wage AS wage
+        INNER JOIN sys_user AS usr
+        ON wage.user_id = usr.id
+        INNER JOIN sys_dept AS dept
+        ON usr.dept_id = dept.id
+        <where>
+            wage.id IN
+            <foreach item="id" collection="ids" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </where>
+        ORDER by dept.sort,usr.user_sort IS NULL,usr.user_sort
+    </select>
+
+    <!-- 根据非编工资的ID获取详情信息 -->
+    <select id="getFbWageById" resultMap="emoluFbWageMap">
+        SELECT wage.id,wage.user_id,basics_wage,age_wage,education_wage,occupation_wage,administration_subsidy,technology_subsidy,post_subsidy,traffic_subsidy,basics_perf,exist_reside_subsidy,driver_kilometre_subsidy,increase_one,increase_two,total_payable,social_security,accumulation_fund,trade_union_dues,meal_tonic,other_one,other_two,withholding_total,actual_salary,grsds,wage.remark,wage.creator,wage.create_date,wage.updater,wage.update_date,login_no,real_name,dept_id,id_code,login_no,dept.`name` AS dept_name,half_month FROM emolu_fb_wage AS wage
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          INNER JOIN sys_user AS usr ON wage.user_id = usr.id
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                          INNER JOIN sys_dept AS dept ON usr.dept_id = dept.id
+        WHERE wage.id = #{id}
+    </select>
+
+    <!-- 根据用户id获取工资信息 -->
+    <select id="getFbWageByUserId" resultMap="emoluFbWageMap">
+        SELECT id,user_id,basics_wage,age_wage,education_wage,occupation_wage,administration_subsidy,technology_subsidy,post_subsidy,traffic_subsidy,basics_perf,exist_reside_subsidy,driver_kilometre_subsidy,increase_one,increase_two,total_payable,social_security,accumulation_fund,trade_union_dues,meal_tonic,other_one,other_two,withholding_total,actual_salary,grsds,remark,creator,create_date,updater,update_date,half_month
+        FROM emolu_fb_wage AS wage
+        WHERE wage.user_id = #{userId}
+    </select>
+
+    <!-- 修改非编工资信息表 -->
+    <update id="updateFbWage">
+        UPDATE emolu_fb_wage
+        SET basics_wage = #{basicsWage},age_wage = #{ageWage},education_wage = #{educationWage},occupation_wage = #{occupationWage},administration_subsidy = #{administrationSubsidy},technology_subsidy = #{technologySubsidy},post_subsidy = #{postSubsidy},traffic_subsidy = #{trafficSubsidy},basics_perf = #{basicsPerf},exist_reside_subsidy = #{existResideSubsidy},driver_kilometre_subsidy = #{driverKilometreSubsidy},increase_one = #{increaseOne},increase_two = #{increaseTwo},total_payable = #{totalPayable},social_security = #{socialSecurity},accumulation_fund = #{accumulationFund},trade_union_dues = #{tradeUnionDues},meal_tonic = #{mealTonic},other_one = #{otherOne},other_two = #{otherTwo},withholding_total = #{withholdingTotal},actual_salary = #{actualSalary},grsds = #{grsds},updater = #{updater},update_date = #{updateDate},half_month = #{halfMonth}
+        WHERE user_id = #{userId}
+    </update>
+
+    <!--根据用户ID查询非编员工工资详情-->
+    <select id="getListByUserIds" resultMap="emoluFbWageMap">
+        select t1.* from emolu_fb_wage t1
+        <where>
+            user_id in
+            <foreach item="userId" collection="array" open="(" separator="," close=")">
+                #{userId}
+            </foreach>
+        </where>
+    </select>
+
+    <!--根据id查询非编员工预发绩效详情-->
+    <select id="selectById" resultMap="emoluFbWageMap">
+        SELECT t1.*,t2.login_no,t2.username,t2.real_name,t2.mobile,t2.dept_id,t3.name as dept_name,t2.id_code,
+               t4.real_name as create_real_name,t4.username as create_name,
+               t5.real_name as update_real_name,t5.username as update_name
+        FROM emolu_fb_wage t1
+                 inner join sys_user t2 on t1.user_id = t2.id
+                 inner join sys_dept t3 on t3.id = t2.dept_id
+                 inner join sys_user t4 on t1.creator = t4.id
+                 inner join sys_user t5 on t1.updater = t5.id
+        where t1.id = #{id}
+    </select>
+
+    <select id="getNameByERPS" resultType="String">
+        SELECT usr.real_name
+        FROM emolu_fb_wage AS wage
+        INNER JOIN sys_user AS usr ON wage.user_id = usr.id
+        WHERE usr.login_no IN
+        <foreach collection="emoluFbWageDTOS" item="emoluFbWageDTO" separator="," open="(" close=")">
+            #{emoluFbWageDTO.loginNo}
+        </foreach>
+    </select>
+
+    <update id="updateGrsdsByUserId">
+        UPDATE emolu_fb_wage SET grsds = #{grsds} WHERE user_id = #{userId}
+    </update>
+
+    <delete id="deleteByUserIds">
+        DELETE FROM emolu_fb_wage
+        <where>
+            user_id IN
+            <foreach collection="ids" item="userId" separator="," open="(" close=")">
+                #{userId}
+            </foreach>
+        </where>
+    </delete>
+</mapper>

@@ -3,10 +3,11 @@ package com.example.courtyard.entity;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 import javax.persistence.*;
+import java.io.Serializable;
 
 @Entity
 @Table(name = "announcement")
-public class Announcement {
+public class Announcement implements Serializable {
     private static final long serialVersionUID = 1L;
 
     @Id
@@ -31,4 +32,5 @@ public class Announcement {
 
     @JsonProperty("is_approved")
     private boolean isApproved;
+
 }
