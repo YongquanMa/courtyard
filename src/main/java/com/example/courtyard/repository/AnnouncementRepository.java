@@ -12,7 +12,6 @@ import java.util.List;
 @Mapper
 //@Repository
 public interface AnnouncementRepository {
-
     List<Announcement> listAll();
     List<Announcement> findAll();
     void save( Announcement announcement);
